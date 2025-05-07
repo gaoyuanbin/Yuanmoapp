@@ -1,77 +1,50 @@
-import React, { useState } from 'react';
-import { TouchableOpacity, Text, View, StyleSheet, Alert } from 'react-native';
-import { Audio } from 'expo-av';  // Import the Audio module from expo-av
+import React from 'react';
+import { Button, Alert } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import HomeScreen from './HomeScreen';
+import SecondScreen from './SecondScreen';
+import SheetScreen from './SheetScreen';
+import { DevSettings } from 'react-native';
 
-export default function App() {
-  const [sound, setSound] = useState();
+const Stack = createNativeStackNavigator();
 
-  const handlePress = (buttonName: string) => {
-    Alert.alert(`${buttonName} Pressed!`, `You clicked the ${buttonName} button.`);
-  };
-
-  const playSound = async () => {
-    const { sound } = await Audio.Sound.createAsync(
-      require('./No.m4a') // Replace with your song file or URL
-    );
-    setSound(sound);
-    await sound.playAsync();
-  };
-
+function HeaderButtons({ navigation }: { navigation: any }) {
   return (
-    <View style={styles.container}>
-      <View style={styles.buttonContainer}>
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#4CAF50' }]}
-          onPress={() => handlePress('Yes')}
-        >
-          <Text style={styles.buttonText}>Yes</Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#F44336' }]}
-          onPress={() => handlePress('No')}
-        >
-          <Text style={styles.buttonText}>No</Text>
-        </TouchableOpacity>
-
-        {/* Play Song Button */}
-        <TouchableOpacity
-          style={[styles.button, { backgroundColor: '#2196F3' }]}
-          onPress={playSound}
-        >
-          <Text style={styles.buttonText}>Play Song</Text>
-        </TouchableOpacity>
-      </View>
-    </View>
+    <>
+      <Button title="Home" onPress={() => navigation.navigate('Home')} />
+      <Button title="Settings" onPress={() => Alert.alert('Settings clicked')} />
+      <Button
+        title="Reload"
+        onPress={() => {
+          if (__DEV__) {
+            DevSettings.reload();
+          } else {
+            Alert.alert('Reload only available in production mode.');
+          }
+        }}
+      />
+    </>
   );
 }
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-  },
-  buttonContainer: {
-    flexDirection: 'column',
-    justifyContent: 'space-between',
-    width: '80%',
-    height: '100%',
-  },
-  button: {
-    flex: 1,
-    paddingVertical: 10,
-    borderRadius: 5,
-    marginHorizontal: 10,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#fff',
-    fontSize: 18,
-  },
-});
+export default function App() {
+  return (
+    <NavigationContainer>
+      <Stack.Navigator
+        initialRouteName="Home"
+        screenOptions={({ navigation }) => ({
+          headerRight: () => <HeaderButtons navigation={navigation} />,
+        })}
+      >
+        <Stack.Screen name="Home" component={HomeScreen} />
+        <Stack.Screen name="Second" component={SecondScreen} />
+        <Stack.Screen name="Sheet" component={SheetScreen} />
+      </Stack.Navigator>
+    </NavigationContainer>
+  );
+}
+
 
 
 
